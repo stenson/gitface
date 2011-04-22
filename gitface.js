@@ -3,33 +3,36 @@
   var gitfaces,
     baseUrl = "http://github.com/api/v2/json/repos/show/";
   
+  // process the github response
+  function process(response) {
+    gitfaces.empty();
+    $.each(response.contributors, function(index, contributor) {
+      var div = $("<a/>",{
+        className: "gitface",
+        href: "https://github.com/"+contributor.login,
+        target: "_blank"
+      });
+      div.append($("<img/>",{
+        src: "http://www.gravatar.com/avatar/"+contributor.gravatar_id+"?s=300"
+      }));
+      div.append($("<span/>",{
+        className: "contributions",
+        text: contributor.contributions
+      }));
+      div.append($("<span/>",{
+        className: "login",
+        text: contributor.login
+      }))
+      gitfaces.append(div);
+    });
+  }
+  
   function loadEarl() {
     var match = window.location.hash.match(/#\/(\w+)\/(\w+)/),
       user = match[1],
       repo = match[2];
-    
-    $.getJSON(baseUrl+user+"/"+repo+"/contributors?callback=?", function(response) {
-      gitfaces.empty();
-      $.each(response.contributors, function(index, contributor) {
-        var div = $("<a/>",{
-          className: "gitface",
-          href: "https://github.com/"+contributor.login,
-          target: "_blank"
-        });
-        div.append($("<img/>",{
-          src: "http://www.gravatar.com/avatar/"+contributor.gravatar_id+"?s=300"
-        }));
-        div.append($("<span/>",{
-          className: "contributions",
-          text: contributor.contributions
-        }));
-        div.append($("<span/>",{
-          className: "login",
-          text: contributor.login
-        }))
-        gitfaces.append(div);
-      });
-    });
+      
+    $.getJSON(baseUrl+user+"/"+repo+"/contributors?callback=?").success(process);
   }
   
   $(document).ready(function(){
@@ -60,9 +63,7 @@
     });
     
     // address handling
-    $.address.change(function(){
-      loadEarl();
-    });
+    $.address.change(loadEarl);
   });
   
 })();
