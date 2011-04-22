@@ -59,7 +59,7 @@
     });
     
     // address handling
-    $.address.change(loadEarl);
+    $.address.change(loadEarl); 
   });
   
 })();
